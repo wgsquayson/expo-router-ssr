@@ -1,7 +1,7 @@
-import Text from "@/components/text";
-import Layout from "@/components/layout";
-import Input from "@/components/input";
 import Button from "@/components/button";
+import Input from "@/components/input";
+import Layout from "@/components/layout";
+import Text from "@/components/text";
 
 import Head from "expo-router/head";
 
@@ -18,7 +18,6 @@ export default function SignUp() {
 
       <Layout>
         <Text variant="title">Sign Up to Expo Router SSR</Text>
-        <Input placeholder="Name" />
         <Input placeholder="Email" />
         <Input placeholder="Password" />
         <Button text="Sign up" />
