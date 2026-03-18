@@ -1,5 +1,5 @@
 import { User } from "@/types/user";
-import { generateToken } from "@/utils/auth";
+import { generateCookieHeaders, generateToken } from "@/utils/auth";
 import { db } from "@/utils/db";
 import { StatusError } from "expo-server";
 
@@ -59,8 +59,6 @@ export async function POST(request: Request): Promise<Response> {
 
   return Response.json(responseBody, {
     status: 201,
-    headers: {
-      "Set-Cookie": `refreshToken=${refreshToken}; HttpOnly; Path=/; Max-Age=604800; SameSite=Strict; Secure`,
-    },
+    headers: generateCookieHeaders(refreshToken),
   });
 }
