@@ -57,12 +57,10 @@ export async function POST(request: Request): Promise<Response> {
   });
 
   return Response.json(
-    {
-      accessToken: newAccessToken,
-    },
+    {},
     {
       status: 200,
-      headers: generateCookieHeaders(newRefreshToken),
+      headers: generateCookieHeaders(newAccessToken, newRefreshToken),
     },
   );
 }

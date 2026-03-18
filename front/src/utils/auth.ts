@@ -26,22 +26,47 @@ export async function verifyToken(token: string) {
   }
 }
 
-export function generateCookieHeaders(refreshToken: string) {
+export function generateCookieHeaders(
+  accessToken: string,
+  refreshToken: string,
+) {
   const env = environment();
+  const isProd = env === "production";
 
-  const cookieParts = [
-    `refreshToken=${refreshToken}`,
+  const headers = new Headers();
+
+  const baseOptions = [
     "HttpOnly",
     "Path=/",
-    "Max-Age=604800",
     "SameSite=Strict",
-  ];
+    isProd ? "Secure" : "",
+  ]
+    .filter(Boolean)
+    .join("; ");
 
-  if (env === "production") {
-    cookieParts.push("Secure");
+  headers.append(
+    "Set-Cookie",
+    `accessToken=${accessToken}; Max-Age=900; ${baseOptions}`,
+  );
+
+  headers.append(
+    "Set-Cookie",
+    `refreshToken=${refreshToken}; Max-Age=604800; ${baseOptions}`,
+  );
+
+  return headers;
+}
+
+export function isTokenExpired(token: string) {
+  try {
+    const payload = JSON.parse(
+      Buffer.from(token.split(".")[1], "base64").toString(),
+    );
+
+    const now = Math.floor(Date.now() / 1000);
+
+    return payload.exp < now;
+  } catch {
+    return true;
   }
-
-  return {
-    "Set-Cookie": cookieParts.join("; "),
-  };
 }

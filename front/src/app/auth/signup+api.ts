@@ -4,7 +4,6 @@ import { db } from "@/utils/db";
 import { StatusError } from "expo-server";
 
 type SignUpResponse = {
-  accessToken: string;
   user: {
     id: string;
     email: string;
@@ -53,7 +52,6 @@ export async function POST(request: Request): Promise<Response> {
   });
 
   const responseBody: SignUpResponse = {
-    accessToken,
     user: {
       id: newUser.id,
       email: newUser.email,
@@ -62,6 +60,6 @@ export async function POST(request: Request): Promise<Response> {
 
   return Response.json(responseBody, {
     status: 201,
-    headers: generateCookieHeaders(refreshToken),
+    headers: generateCookieHeaders(accessToken, refreshToken),
   });
 }
