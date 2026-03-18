@@ -10,6 +10,13 @@ if (!fs.existsSync(DB_PATH)) {
 
 export const db = {
   getUsers: (): User[] => JSON.parse(fs.readFileSync(DB_PATH, "utf-8")).users,
+  getUser: (userId: string): User | null => {
+    const user: User | null = JSON.parse(
+      fs.readFileSync(DB_PATH, "utf-8"),
+    ).users.find((u: User) => u.id === userId);
+
+    return user ?? null;
+  },
   saveUser: (user: User) => {
     const data = JSON.parse(fs.readFileSync(DB_PATH, "utf-8"));
     data.users.push(user);
