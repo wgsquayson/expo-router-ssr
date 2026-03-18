@@ -1,21 +1,18 @@
-import { User } from "@/types/user";
 import { SignJWT, jwtVerify } from "jose";
+
+type TokenData = { id: string; email: string };
 
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
-export async function generateAccessToken(user: User) {
-  return await new SignJWT({ sub: user.id, email: user.email, type: "access" })
+export async function generateToken(
+  { id, email }: TokenData,
+  type: "access" | "refresh",
+  expiration: string,
+) {
+  return await new SignJWT({ sub: id, email, type })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime("15m")
-    .sign(SECRET);
-}
-
-export async function generateRefreshToken(user: User) {
-  return await new SignJWT({ sub: user.id, type: "refresh" })
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuedAt()
-    .setExpirationTime("7d")
+    .setExpirationTime(expiration)
     .sign(SECRET);
 }
 

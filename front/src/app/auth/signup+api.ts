@@ -1,13 +1,13 @@
 import { User } from "@/types/user";
-import { generateAccessToken, generateRefreshToken } from "@/utils/auth";
+import { generateToken } from "@/utils/auth";
 import { db } from "@/utils/db";
 import { StatusError } from "expo-server";
 
 type SignUpResponse = {
   accessToken: string;
   user: {
+    id: string;
     email: string;
-    name: string;
   };
 };
 
@@ -25,20 +25,37 @@ export async function POST(request: Request): Promise<Response> {
 
   const newUser: User = {
     id: Date.now().toString(),
-    name,
     email,
     password,
   };
 
-  db.saveUser(newUser);
+  const accessToken = await generateToken(
+    {
+      id: newUser.id,
+      email: newUser.email,
+    },
+    "access",
+    "15m",
+  );
 
-  const accessToken = await generateAccessToken(newUser);
-  const refreshToken = await generateRefreshToken(newUser);
+  const refreshToken = await generateToken(
+    {
+      id: newUser.id,
+      email: newUser.email,
+    },
+    "refresh",
+    "7d",
+  );
+
+  db.saveUser({
+    ...newUser,
+    refreshToken,
+  });
 
   const responseBody: SignUpResponse = {
     accessToken,
     user: {
-      name: newUser.name,
+      id: newUser.id,
       email: newUser.email,
     },
   };

@@ -15,4 +15,22 @@ export const db = {
     data.users.push(user);
     fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
   },
+  updateUser: (userId: string, input: Partial<User>) => {
+    const data = JSON.parse(fs.readFileSync(DB_PATH, "utf-8"));
+
+    const userIndex = data.users.findIndex((u: User) => u.id === userId);
+
+    if (userIndex === -1) {
+      throw new Error("User not found");
+    }
+
+    data.users[userIndex] = {
+      ...data.users[userIndex],
+      ...input,
+    };
+
+    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+
+    return data.users[userIndex];
+  },
 };
