@@ -1,23 +1,23 @@
-import { Text, View } from "react-native";
-import { useLoaderData } from "expo-router";
+import { getTokensFromCookies } from "@/utils/auth";
+import { Redirect, useLoaderData } from "expo-router";
+import { LoaderFunction } from "expo-server";
 
-export async function loader() {
-  const data = { message: "Hello from server!" };
-  return data;
-}
+type LoaderReturn = { redirect: "/login" | "/dashboard" };
+
+export const loader: LoaderFunction<LoaderReturn> = async (request) => {
+  const { accessToken, refreshToken } = getTokensFromCookies(request);
+
+  if (accessToken && refreshToken) {
+    return { redirect: "/dashboard" };
+  }
+
+  return { redirect: "/login" };
+};
 
 export default function HomeScreen() {
-  const data = useLoaderData<typeof loader>();
+  const { redirect } = useLoaderData<typeof loader>();
 
-  return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text style={{ color: "black" }}>SSR: {data.message}</Text>
-    </View>
-  );
+  if (!redirect) return null;
+
+  return <Redirect href={redirect} />;
 }
