@@ -3,13 +3,6 @@ import { generateCookieHeaders, generateToken } from "@/utils/auth";
 import { db } from "@/utils/db";
 import { StatusError } from "expo-server";
 
-type SignUpResponse = {
-  user: {
-    id: string;
-    email: string;
-  };
-};
-
 export async function POST(request: Request): Promise<Response> {
   const { email, password } = await request.json();
   const users = db.getUsers();
@@ -51,14 +44,7 @@ export async function POST(request: Request): Promise<Response> {
     refreshToken,
   });
 
-  const responseBody: SignUpResponse = {
-    user: {
-      id: newUser.id,
-      email: newUser.email,
-    },
-  };
-
-  return Response.json(responseBody, {
+  return Response.json(null, {
     status: 201,
     headers: generateCookieHeaders(accessToken, refreshToken),
   });
