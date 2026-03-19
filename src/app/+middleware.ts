@@ -26,14 +26,14 @@ export default async function middleware(request: Request) {
 
   // Redirects to login if the route is protected but there is no refresh token
   if (isProtected && !refreshToken) {
-    return Response.redirect(new URL("/login", request.url));
+    return Response.redirect(new URL("/login", request.url), 302);
   }
 
   // If there is a valid access token
   if (accessToken && !isTokenExpired(accessToken)) {
     // Redirects to dashboard if the user is in an public path
     if (PUBLIC_PATHS.includes(pathname)) {
-      return Response.redirect(new URL("/dashboard", request.url));
+      return Response.redirect(new URL("/dashboard", request.url), 302);
     }
 
     // Does nothing if the user is already on the dashboard
@@ -95,7 +95,7 @@ export default async function middleware(request: Request) {
 
   // Sends user to login on accessing "/"
   if (pathname === "/") {
-    return Response.redirect(new URL("/login", request.url));
+    return Response.redirect(new URL("/login", request.url), 302);
   }
 
   return;
