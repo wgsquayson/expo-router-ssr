@@ -1,4 +1,8 @@
-import { getTokensFromCookies, isTokenExpired } from "@/utils/auth";
+import {
+  getTokensFromCookies,
+  invalidateCookies,
+  isTokenExpired,
+} from "@/utils/auth";
 
 const PROTECTED_PATHS = ["/dashboard"];
 
@@ -6,15 +10,17 @@ export default async function middleware(request: Request) {
   const url = new URL(request.url);
   const { pathname } = url;
 
-  if (pathname.startsWith("/auth") || pathname === "/login") {
+  const isApiRoute = pathname.startsWith("/auth");
+
+  if (isApiRoute) {
     return;
   }
+
+  console.log(`[MIDDLEWARE] [${request.method}] ${pathname}`);
 
   const { accessToken, refreshToken } = getTokensFromCookies(request);
 
   const isProtected = PROTECTED_PATHS.includes(pathname);
-
-  console.log(`[${request.method}] ${pathname} | protected=${isProtected}`);
 
   if (isProtected && !refreshToken) {
     return Response.redirect(new URL("/login", request.url));
@@ -25,6 +31,8 @@ export default async function middleware(request: Request) {
   }
 
   if (refreshToken) {
+    console.log(`[MIDDLEWARE] Invalid access token, refreshing...`);
+
     try {
       const refreshRes = await fetch(new URL("/auth/refresh", request.url), {
         method: "POST",
@@ -34,25 +42,40 @@ export default async function middleware(request: Request) {
       });
 
       if (refreshRes.ok) {
-        const newCookies = refreshRes.headers.get("Set-Cookie");
+        const cookies = refreshRes.headers.getSetCookie();
 
-        console.log("[Auth] refresh success");
+        if (cookies.length > 0) {
+          const headers = new Headers();
 
-        if (newCookies) {
+          cookies.forEach((cookie) => {
+            headers.append("Set-Cookie", cookie);
+          });
+
           return new Response(null, {
             status: 204,
-            headers: {
-              "Set-Cookie": newCookies,
-            },
+            headers,
           });
         }
-
-        return;
       }
 
-      console.log("[Auth] refresh failed");
+      console.log("[MIDDLEWARE] Refresh failed, invalidating cookies.");
+
+      const headers = new Headers({
+        Location: "/login",
+      });
+
+      const cookieHeaders = invalidateCookies();
+
+      cookieHeaders.forEach((value, key) => {
+        headers.append(key, value);
+      });
+
+      return new Response(null, {
+        status: 302,
+        headers,
+      });
     } catch (e) {
-      console.log("[Auth] refresh error");
+      console.log("[MIDDLEWARE] Refresh error.");
     }
   }
 
