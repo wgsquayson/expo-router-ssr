@@ -1,10 +1,30 @@
-import { StyleSheet, TextInput, TextInputProps } from "react-native";
+import { StyleSheet, TextInput, TextInputProps, View } from "react-native";
+import Text from "./text";
 
-export default function Input(props: TextInputProps) {
-  return <TextInput {...props} style={styles.input} />;
+type InputProps = TextInputProps & {
+  error?: string;
+};
+
+export default function Input({ error, ...props }: InputProps) {
+  return (
+    <View style={styles.container}>
+      <TextInput {...props} style={styles.input} />
+      {error ? (
+        <Text color="red" textAlign="left">
+          {error}
+        </Text>
+      ) : null}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    width: "100%",
+    gap: 4,
+    flexDirection: "column",
+    textAlign: "left",
+  },
   input: {
     width: "100%",
     padding: 8,
