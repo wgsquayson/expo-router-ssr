@@ -5,6 +5,7 @@ import {
 } from "@/utils/auth";
 
 const PROTECTED_PATHS = ["/dashboard"];
+const PUBLIC_PATHS = ["/", "/login", "/signup"];
 
 export default async function middleware(request: Request) {
   const url = new URL(request.url);
@@ -12,6 +13,7 @@ export default async function middleware(request: Request) {
 
   const isApiRoute = pathname.startsWith("/auth");
 
+  // Skips api routes
   if (isApiRoute) {
     return;
   }
@@ -22,14 +24,23 @@ export default async function middleware(request: Request) {
 
   const isProtected = PROTECTED_PATHS.includes(pathname);
 
+  // Redirects to login if the route is protected but there is no refresh token
   if (isProtected && !refreshToken) {
     return Response.redirect(new URL("/login", request.url));
   }
 
+  // If there is a valid access token
   if (accessToken && !isTokenExpired(accessToken)) {
+    // Redirects to dashboard if the user is in an public path
+    if (PUBLIC_PATHS.includes(pathname)) {
+      return Response.redirect(new URL("/dashboard", request.url));
+    }
+
+    // Does nothing if the user is already on the dashboard
     return;
   }
 
+  // Attempts to refresh the access token if it's invalid
   if (refreshToken) {
     console.log(`[MIDDLEWARE] Invalid access token, refreshing...`);
 
@@ -58,6 +69,7 @@ export default async function middleware(request: Request) {
         }
       }
 
+      // Invalidates cookies and redirects to login if refreshing the token fails
       console.log("[MIDDLEWARE] Refresh failed, invalidating cookies.");
 
       const headers = new Headers({
@@ -79,7 +91,8 @@ export default async function middleware(request: Request) {
     }
   }
 
-  if (isProtected) {
+  // Sends user to login on accessing "/"
+  if (pathname === "/") {
     return Response.redirect(new URL("/login", request.url));
   }
 
