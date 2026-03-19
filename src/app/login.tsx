@@ -48,7 +48,7 @@ export default function Login() {
         password: values.password,
       };
 
-      const response = await fetch("/auth/login", {
+      const response = await fetch("/api/auth/login", {
         method: "POST",
         body: JSON.stringify(data),
       });

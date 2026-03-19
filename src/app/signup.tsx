@@ -44,7 +44,7 @@ export default function SignUp() {
         password: values.password,
       };
 
-      const response = await fetch("/auth/signup", {
+      const response = await fetch("/api/auth/signup", {
         method: "POST",
         body: JSON.stringify(data),
       });

@@ -11,7 +11,7 @@ export default async function middleware(request: Request) {
   const url = new URL(request.url);
   const { pathname } = url;
 
-  const isApiRoute = pathname.startsWith("/auth");
+  const isApiRoute = pathname.startsWith("/api");
 
   // Skips api routes
   if (isApiRoute) {
@@ -45,12 +45,15 @@ export default async function middleware(request: Request) {
     console.log(`[MIDDLEWARE] Invalid access token, refreshing...`);
 
     try {
-      const refreshRes = await fetch(new URL("/auth/refresh", request.url), {
-        method: "POST",
-        headers: {
-          cookie: `refreshToken=${refreshToken}`,
+      const refreshRes = await fetch(
+        new URL("/api/auth/refresh", request.url),
+        {
+          method: "POST",
+          headers: {
+            cookie: `refreshToken=${refreshToken}`,
+          },
         },
-      });
+      );
 
       if (refreshRes.ok) {
         console.log(`[MIDDLEWARE] Refresh successful, setting cookies...`);
