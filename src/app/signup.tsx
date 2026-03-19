@@ -2,10 +2,79 @@ import Button from "@/components/button";
 import Input from "@/components/input";
 import Layout from "@/components/layout";
 import Text from "@/components/text";
-
+import { useFormState } from "@/hooks/use-form-state";
+import { FormValues } from "@/types/form-values";
+import { validator } from "@/utils/form-validator";
+import { router } from "expo-router";
 import Head from "expo-router/head";
+import { useState } from "react";
 
 export default function SignUp() {
+  const [loading, setLoading] = useState(false);
+  const [requestError, setRequestError] = useState<string | undefined>();
+
+  const {
+    errors,
+    values,
+    setField,
+    runValidation,
+    isValid,
+    touchField,
+    touched,
+  } = useFormState<FormValues>(
+    {
+      email: "",
+      password: "",
+    },
+    validator,
+    ["email", "password"],
+  );
+
+  async function handleSubmit() {
+    runValidation();
+
+    if (!isValid) return;
+
+    setLoading(true);
+    setRequestError(undefined);
+
+    try {
+      const data = {
+        email: values.email,
+        password: values.password,
+      };
+
+      const response = await fetch("/auth/signup", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+
+      let json = null;
+
+      try {
+        json = await response.json();
+      } catch {}
+
+      if (!response.ok) {
+        throw new Error(
+          json?.message ??
+            "An error happened while trying to login. Try again.",
+        );
+      }
+
+      router.replace("/dashboard");
+    } catch (error) {
+      if (error instanceof Error) {
+        setRequestError(error.message);
+        return;
+      }
+
+      setRequestError("An error happened while trying to login. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <>
       <Head>
@@ -18,10 +87,35 @@ export default function SignUp() {
 
       <Layout>
         <Text variant="title">Sign Up to Expo Router SSR</Text>
-        <Input placeholder="Email" />
-        <Input placeholder="Password" />
-        <Button text="Sign up" />
-        <Text variant="bold">Go back</Text>
+        <Input
+          placeholder="Email"
+          value={values.email}
+          onChangeText={(value) => setField("email", value)}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoComplete="off"
+          error={touched.email ? errors.email : undefined}
+          autoCorrect={false}
+          onBlur={() => touchField("email")}
+        />
+        <Input
+          placeholder="Password (min 3, max 10 characters)"
+          maxLength={10}
+          value={values.password}
+          onChangeText={(value) => setField("password", value)}
+          secureTextEntry
+          autoCapitalize="none"
+          autoComplete="off"
+          error={touched.password ? errors.password : ""}
+          autoCorrect={false}
+          onBlur={() => touchField("password")}
+        />
+        {requestError ? <Text color="red">{requestError}</Text> : null}
+        <Button
+          text="Sign Up"
+          disabled={!isValid || loading}
+          onPress={handleSubmit}
+        />
       </Layout>
     </>
   );
