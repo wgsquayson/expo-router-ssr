@@ -3,7 +3,7 @@ import { StyleSheet, View } from "react-native";
 
 export default function Layout({ children }: PropsWithChildren) {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { height: window.innerHeight }]}>
       <View style={styles.content}>{children}</View>
     </View>
   );
@@ -15,7 +15,6 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    height: "100%",
     fontFamily: "sans-serif",
   },
   content: {
