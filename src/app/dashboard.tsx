@@ -40,6 +40,7 @@ export default function Dashboard() {
 
       if (response.ok) {
         router.replace("/login");
+        window.location.reload();
         return;
       }
 
