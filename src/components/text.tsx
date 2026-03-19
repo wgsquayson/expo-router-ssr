@@ -1,5 +1,5 @@
-import { useMemo } from "react";
 import {
+  CursorValue,
   Text as RNText,
   TextProps as RNTextProps,
   StyleSheet,
@@ -11,22 +11,24 @@ type TextVariant = "default" | "title" | "bold";
 type TextProps = RNTextProps & {
   variant?: TextVariant;
   color?: string;
+  cursor?: CursorValue;
+  textAlign?: TextStyle["textAlign"];
 };
 
 export default function Text({
   children,
   variant = "default",
   color,
+  cursor = "auto",
+  textAlign = "center",
   ...props
 }: TextProps) {
-  const style = useMemo<TextStyle>(
-    () => ({
-      ...styles[variant],
-      color,
-      textAlign: "center",
-    }),
-    [],
-  );
+  const style: TextStyle = {
+    ...styles[variant],
+    color,
+    textAlign,
+    cursor,
+  };
 
   return (
     <RNText {...props} style={style}>
