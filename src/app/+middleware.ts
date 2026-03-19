@@ -1,4 +1,4 @@
-import { isTokenExpired } from "@/utils/auth";
+import { getTokensFromCookies, isTokenExpired } from "@/utils/auth";
 
 const PROTECTED_PATHS = ["/dashboard"];
 
@@ -10,17 +10,7 @@ export default async function middleware(request: Request) {
     return;
   }
 
-  const cookies = request.headers.get("cookie") || "";
-
-  const accessToken = cookies
-    .split("; ")
-    .find((c) => c.startsWith("accessToken="))
-    ?.split("=")[1];
-
-  const refreshToken = cookies
-    .split("; ")
-    .find((c) => c.startsWith("refreshToken="))
-    ?.split("=")[1];
+  const { accessToken, refreshToken } = getTokensFromCookies(request);
 
   const isProtected = PROTECTED_PATHS.includes(pathname);
 

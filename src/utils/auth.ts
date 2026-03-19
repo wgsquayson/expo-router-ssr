@@ -1,5 +1,5 @@
-import { environment } from "expo-server";
-import { SignJWT, jwtVerify } from "jose";
+import { environment, ImmutableRequest } from "expo-server";
+import { jwtVerify, SignJWT } from "jose";
 
 type TokenData = { id: string; email: string };
 
@@ -69,4 +69,23 @@ export function isTokenExpired(token: string) {
   } catch {
     return true;
   }
+}
+
+export function getTokensFromCookies(request?: Request | ImmutableRequest) {
+  const cookies = request?.headers.get("cookie") || "";
+
+  const accessToken = cookies
+    .split("; ")
+    .find((c) => c.startsWith("accessToken="))
+    ?.split("=")[1];
+
+  const refreshToken = cookies
+    .split("; ")
+    .find((c) => c.startsWith("refreshToken="))
+    ?.split("=")[1];
+
+  return {
+    accessToken,
+    refreshToken,
+  };
 }
