@@ -11,10 +11,10 @@ type SignUpResponse = {
 };
 
 export async function POST(request: Request): Promise<Response> {
-  const { name, email, password } = await request.json();
+  const { email, password } = await request.json();
   const users = db.getUsers();
 
-  if (!(name && email && password)) {
+  if (!(email && password)) {
     throw new StatusError(400, { message: "Missing required fields" });
   }
 
