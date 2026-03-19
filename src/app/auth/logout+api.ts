@@ -1,4 +1,4 @@
-import { verifyToken } from "@/utils/auth";
+import { invalidateCookies, verifyToken } from "@/utils/auth";
 import { db } from "@/utils/db";
 
 export async function POST(request: Request): Promise<Response> {
@@ -33,9 +33,6 @@ export async function POST(request: Request): Promise<Response> {
 
   return new Response(null, {
     status: 204,
-    headers: {
-      "Set-Cookie":
-        "refreshToken=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict",
-    },
+    headers: invalidateCookies(),
   });
 }

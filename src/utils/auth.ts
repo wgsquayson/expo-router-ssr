@@ -57,6 +57,27 @@ export function generateCookieHeaders(
   return headers;
 }
 
+export function invalidateCookies() {
+  const env = environment();
+  const isProd = env === "production";
+
+  const baseOptions = [
+    "HttpOnly",
+    "Path=/",
+    "SameSite=Strict",
+    isProd ? "Secure" : "",
+  ]
+    .filter(Boolean)
+    .join("; ");
+
+  const headers = new Headers();
+
+  headers.append("Set-Cookie", `accessToken=; Max-Age=0; ${baseOptions}`);
+  headers.append("Set-Cookie", `refreshToken=; Max-Age=0; ${baseOptions}`);
+
+  return headers;
+}
+
 export function isTokenExpired(token: string) {
   try {
     const payload = JSON.parse(
