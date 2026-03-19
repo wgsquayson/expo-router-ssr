@@ -21,16 +21,20 @@ export async function POST(request: Request): Promise<Response> {
   const payload = await verifyToken(refreshToken);
 
   if (!payload || !payload.sub || payload.type !== "refresh") {
-    throw new StatusError(401, { message: "Invalid or expired token" });
+    throw new StatusError(401, { message: "Invalid refresh token" });
   }
 
   const user = db.getUser(payload.sub);
 
   if (!user) {
-    throw new StatusError(401, { message: "User not found" });
+    throw new StatusError(401, { message: "Invalid refresh token" });
   }
 
   if (user.refreshToken !== refreshToken) {
+    db.updateUser(user.id, {
+      refreshToken: null,
+    });
+
     throw new StatusError(401, { message: "Invalid refresh token" });
   }
 
@@ -56,11 +60,8 @@ export async function POST(request: Request): Promise<Response> {
     refreshToken: newRefreshToken,
   });
 
-  return Response.json(
-    {},
-    {
-      status: 200,
-      headers: generateCookieHeaders(newAccessToken, newRefreshToken),
-    },
-  );
+  return Response.json(null, {
+    status: 200,
+    headers: generateCookieHeaders(newAccessToken, newRefreshToken),
+  });
 }
