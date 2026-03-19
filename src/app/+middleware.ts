@@ -53,6 +53,8 @@ export default async function middleware(request: Request) {
       });
 
       if (refreshRes.ok) {
+        console.log(`[MIDDLEWARE] Refresh successful, setting cookies...`);
+
         const cookies = refreshRes.headers.getSetCookie();
 
         if (cookies.length > 0) {
@@ -70,7 +72,7 @@ export default async function middleware(request: Request) {
       }
 
       // Invalidates cookies and redirects to login if refreshing the token fails
-      console.log("[MIDDLEWARE] Refresh failed, invalidating cookies.");
+      console.log("[MIDDLEWARE] Refresh failed, invalidating cookies...");
 
       const headers = new Headers({
         Location: "/login",
