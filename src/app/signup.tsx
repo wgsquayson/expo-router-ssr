@@ -58,7 +58,7 @@ export default function SignUp() {
       if (!response.ok) {
         throw new Error(
           json?.message ??
-            "An error happened while trying to login. Try again.",
+            "An error happened while trying to sign up. Try again.",
         );
       }
 
@@ -69,7 +69,7 @@ export default function SignUp() {
         return;
       }
 
-      setRequestError("An error happened while trying to login. Try again.");
+      setRequestError("An error happened while trying to sign up. Try again.");
     } finally {
       setLoading(false);
     }
