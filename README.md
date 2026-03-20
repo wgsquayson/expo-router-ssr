@@ -39,7 +39,8 @@ Expo SSR was chosen to evaluate it's capabilies on a real world environment. The
 - A single project for mobile and web
 - File-based routing simplifies structure
 - Built-in support for loaders and middleware
-  The main disadvantages would be that it's still an experimental phase as of SDK 55, so there is no guarantee of avoiding breaking changes or full stability at production level at this moment.
+
+The main disadvantages would be that it's still an experimental phase as of SDK 55, so there is no guarantee of avoiding breaking changes or full stability at production level at this moment.
 
 ### Monolithic architecture
 
